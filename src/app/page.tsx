@@ -9,7 +9,7 @@ export default async function Home() {
 
   // Redirect to sign-in if not authenticated
   if (!session?.user?.id) {
-    redirect("/api/auth/signin");
+    redirect("/signin");
   }
 
   return (

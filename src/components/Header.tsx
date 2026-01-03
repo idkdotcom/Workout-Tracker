@@ -15,7 +15,8 @@ export default function Header() {
   ];
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/' });
+    // Explicitly send user to the app signin page after signing out
+    await signOut({ callbackUrl: '/signin' });
   };
 
   return (
