@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import type { TooltipContentProps } from "recharts";
 
 type ProgressData = {
   date: string;
@@ -304,9 +305,9 @@ export default function ProgressChart() {
           <XAxis 
             dataKey="date" 
             stroke={isDark ? "#a1a1aa" : "#71717a"}
+            angle={chartConfig.angle}
             tick={{ 
               fill: isDark ? "#a1a1aa" : "#71717a",
-              angle: chartConfig.angle,
               textAnchor: chartConfig.angle < 0 ? 'end' : 'middle',
               fontSize: 12,
             }}
@@ -323,7 +324,7 @@ export default function ProgressChart() {
               border: `1px solid ${isDark ? "#3f3f46" : "#e4e4e7"}`,
               borderRadius: '8px',
             }}
-            content={({ active, payload }: { active?: boolean; payload?: any[] }) => {
+            content={({ active, payload }: TooltipContentProps<number, string>) => {
               if (active && payload && payload.length > 0) {
                 const data = payload[0].payload;
                 return (
