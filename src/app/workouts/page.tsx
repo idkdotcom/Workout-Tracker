@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import WorkoutForm from '@/components/WorkoutForm';
 import WorkoutList from '@/components/WorkoutList';
+import AuthGuard from '@/components/AuthGuard';
 
 type Workout = {
   date: string;
@@ -53,7 +54,8 @@ export default function WorkoutsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black py-8 px-4">
+    <AuthGuard>
+      <div className="min-h-screen bg-zinc-50 dark:bg-black py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-semibold text-black dark:text-zinc-50">
@@ -102,6 +104,7 @@ export default function WorkoutsPage() {
         )}
       </div>
     </div>
+    </AuthGuard>
   );
 }
 

@@ -1,7 +1,17 @@
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import Link from "next/link";
 import ProgressChart from "@/components/ProgressChart";
 
-export default function Home() {
+export default async function Home() {
+  const session = await getServerSession(authOptions);
+
+  // Redirect to sign-in if not authenticated
+  if (!session?.user?.id) {
+    redirect("/api/auth/signin");
+  }
+
   return (
     <div className="min-h-screen bg-zinc-50 font-sans dark:bg-black">
       <main className="flex min-h-screen w-full max-w-4xl mx-auto flex-col items-center py-16 px-4 sm:px-8">

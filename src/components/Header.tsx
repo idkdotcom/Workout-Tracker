@@ -2,15 +2,21 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { signOut, useSession } from 'next-auth/react';
 
 export default function Header() {
   const pathname = usePathname();
+  const { data: session } = useSession();
 
   const navItems = [
     { href: '/', label: 'Home' },
     { href: '/workouts', label: 'Workouts' },
     { href: '/exercises', label: 'Exercises' },
   ];
+
+  const handleSignOut = async () => {
+    await signOut({ callbackUrl: '/' });
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm">
@@ -39,6 +45,14 @@ export default function Header() {
                 </Link>
               );
             })}
+            {session && (
+              <button
+                onClick={handleSignOut}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors ml-2"
+              >
+                Sign Out
+              </button>
+            )}
           </div>
         </div>
       </nav>
