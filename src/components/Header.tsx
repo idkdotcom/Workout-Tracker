@@ -12,6 +12,7 @@ export default function Header() {
     { href: '/', label: 'Home' },
     { href: '/workouts', label: 'Workouts' },
     { href: '/exercises', label: 'Exercises' },
+    { href: '/assistant', label: 'Assistant' },
   ];
 
   const handleSignOut = async () => {
@@ -36,11 +37,10 @@ export default function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    isActive
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive
                       ? 'bg-black dark:bg-zinc-50 text-white dark:text-black'
                       : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
-                  }`}
+                    }`}
                 >
                   {item.label}
                 </Link>

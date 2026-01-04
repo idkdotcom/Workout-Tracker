@@ -7,6 +7,22 @@ type SetInput = {
     weight: number;
 }
 
+export type ExerciseLog = {
+    id: string;
+    name: string;
+    sets: {
+        setNumber: number;
+        reps: number;
+        weight: number;
+    }[];
+};
+
+export type WorkoutLog = {
+    date: Date;
+    exercises: ExerciseLog[];
+};
+
+
 export async function createWorkout(
     userId: string,
     workoutDate: string,
@@ -48,7 +64,7 @@ export async function createWorkout(
         await client.query("COMMIT");
 
         return { workoutId };
-    } catch(err) {
+    } catch (err) {
         await client.query("ROLLBACK");
         throw err;
     } finally {
@@ -56,7 +72,7 @@ export async function createWorkout(
     }
 }
 
-export async function getWorkoutsByUser(userId: string) {
+export async function getWorkoutsByUser(userId: string): Promise<WorkoutLog[]> {
     const client = await pool.connect();
 
     try {
@@ -89,17 +105,17 @@ export async function getWorkoutsByUser(userId: string) {
 
         const workoutsMap = new Map<string, any>();
 
-        for(const row of workouts.rows) {
-            if(!workoutsMap.has(row.workout_id)) {
+        for (const row of workouts.rows) {
+            if (!workoutsMap.has(row.workout_id)) {
                 workoutsMap.set(row.workout_id, {
                     date: row.workout_date,
                     exercises: new Map<string, any>(),
                 });
             }
-         
+
             const workout = workoutsMap.get(row.workout_id);
 
-            if(!workout.exercises.has(row.exercise_id)) {
+            if (!workout.exercises.has(row.exercise_id)) {
                 workout.exercises.set(row.exercise_id, {
                     id: row.exercise_id,
                     name: row.exercise_name,
@@ -174,7 +190,7 @@ export async function getWorkoutProgress(
 
         // Create a map of all dates in the period
         const dateMap = new Map<string, { date: string; workoutCount: number; totalVolume: number }>();
-        
+
         // Initialize all dates in the period with zero values
         for (let i = 0; i < daysBack; i++) {
             const date = new Date();
