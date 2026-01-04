@@ -97,11 +97,27 @@ export async function POST(req: Request) {
             ]
         });
 
-        const result = await chat.sendMessage(message);
-        const response = await result.response;
-        const text = response.text();
+        const result = await chat.sendMessageStream(message);
 
-        return NextResponse.json({ response: text });
+        const stream = new ReadableStream({
+            async start(controller) {
+                const encoder = new TextEncoder();
+                try {
+                    for await (const chunk of result.stream) {
+                        const chunkText = chunk.text();
+                        if (chunkText) {
+                            controller.enqueue(encoder.encode(chunkText));
+                        }
+                    }
+                    controller.close();
+                } catch (err) {
+                    console.error("Stream error:", err);
+                    controller.error(err);
+                }
+            }
+        });
+
+        return new NextResponse(stream);
 
     } catch (error) {
         console.error("AI Chat Error:", error);

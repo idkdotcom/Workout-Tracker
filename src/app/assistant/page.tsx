@@ -43,7 +43,11 @@ export default function AssistantPage() {
 
         const userMessage = input.trim();
         setInput("");
+        // Add user message immediately
         setMessages(prev => [...prev, { role: "user", text: userMessage }]);
+
+        // Add empty assistant message placeholder
+        setMessages(prev => [...prev, { role: "assistant", text: "" }]);
         setIsLoading(true);
 
         try {
@@ -53,21 +57,50 @@ export default function AssistantPage() {
                 body: JSON.stringify({ message: userMessage }),
             });
 
-            const data = await res.json();
-
             if (!res.ok) {
                 if (res.status === 429) {
-                    setMessages(prev => [...prev, { role: "assistant", text: "⚠️ You're sending messages too fast. Please wait a moment." }]);
+                    setMessages(prev => {
+                        const newMessages = [...prev];
+                        newMessages[newMessages.length - 1].text = "⚠️ You're sending messages too fast. Please wait a moment.";
+                        return newMessages;
+                    });
                 } else {
+                    const data = await res.json();
                     throw new Error(data.error || "Failed to fetch response");
                 }
-            } else {
-                setMessages(prev => [...prev, { role: "assistant", text: data.response }]);
+                setIsLoading(false);
+                return;
+            }
+
+            if (!res.body) throw new Error("No response body");
+
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let done = false;
+
+            while (!done) {
+                const { value, done: doneReading } = await reader.read();
+                done = doneReading;
+                const chunkValue = decoder.decode(value, { stream: true });
+
+                setMessages(prev => {
+                    const newMessages = [...prev];
+                    const lastMsgIndex = newMessages.length - 1;
+                    // Create a shallow copy of the message object to avoid mutation
+                    const lastMsg = { ...newMessages[lastMsgIndex] };
+                    lastMsg.text += chunkValue;
+                    newMessages[lastMsgIndex] = lastMsg;
+                    return newMessages;
+                });
             }
 
         } catch (error) {
             console.error("Chat error:", error);
-            setMessages(prev => [...prev, { role: "assistant", text: "Sorry, I encountered an error. Please try again later." }]);
+            setMessages(prev => {
+                const newMessages = [...prev];
+                newMessages[newMessages.length - 1].text = "Sorry, I encountered an error. Please try again later.";
+                return newMessages;
+            });
         } finally {
             setIsLoading(false);
         }
